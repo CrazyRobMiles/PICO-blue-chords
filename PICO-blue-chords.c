@@ -395,20 +395,24 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packe
     }
 }
 
-#define SCAN_INTERVAL_MS 20
 
 static const char *demo_text = "\n\nHello World!\n\nThis is the BTstack HID Keyboard Demo running on an Embedded Device.\n\n";
 static int demo_pos;
 static btstack_timer_source_t demo_text_timer;
 
+#define SCAN_INTERVAL_MS 20
+
 static void key_scan_timer_handler(btstack_timer_source_t *ts)
 {
     UNUSED(ts);
 
+    // scan the keyboard
     char ch = scan_keys();
 
+    // do we have a key press?
     if (ch != 0)
-    {
+    {   
+        // send the key
         stdin_process(ch);
     }
 
@@ -450,7 +454,7 @@ int keyboard_main(int argc, const char *argv[])
     // use Limited Discoverable Mode; Peripheral; Keyboard as CoD
     gap_set_class_of_device(0x2540);
     // set local name to be identified - zeroes will be replaced by actual BD ADDR
-    gap_set_local_name("HID Keyboard Demo 00:00:00:00:00:00");
+    gap_set_local_name("Blue Chord Keyboard 00:00:00:00:00:00");
     // allow for role switch in general and sniff mode
     gap_set_default_link_policy_settings(LM_LINK_POLICY_ENABLE_ROLE_SWITCH | LM_LINK_POLICY_ENABLE_SNIFF_MODE);
     // allow for role switch on outgoing connections - this allow HID Host to become master when we re-connect to it
