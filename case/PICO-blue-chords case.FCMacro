@@ -1,0 +1,157 @@
+import Mesh
+import Part
+from FreeCAD import Base
+import sys
+
+import math
+import random
+
+origin= [104.14,35.56]
+end=[215.9 ,137.16 ]
+
+width=end[0] - origin[0]
+depth=end[1] - origin[1]
+
+keyPushHeight=2.5
+keySocketHoleHeight=9.4
+keyswitchHoleSize = 14.3
+keyInsetHoleMargin = 5.5
+displayHoleMargin = 3.5
+displayHoleWidth=28.0
+displayHoleDepth=16.0
+picoMargin = 3.0
+picoInsetHeight = keyPushHeight+keySocketHoleHeight-2
+picoLowerDepth = 12.0
+displayInsetHeight=keySocketHoleHeight
+caseHeight = 15.0
+
+baseHeight = 17.0
+baseSidethickness = 3.0
+baseYOffset = -50;
+
+boxSideThickness=2.0
+boxMargin = 2.0
+
+mountingHoles = [[213.36,38.1],[106.68,38.1],[143.78,129.54],[175.26,129.54]]
+holeRadius = 0.5
+baseHoleRadius = 1.0
+baseHoleHeadRadius = 2.0
+baseHoleHeadDepth = 1.5
+baseRimThickness = 1.0
+baseRimHeight = 4.0
+
+pico=["A1",160.02,109.22,23.5,55.0]
+
+Brd1=["Brd1",123.80,51.24,27.42,27.42]
+Brd2=["Brd2",195.20,51.24,27.42,27.42]
+
+Control_1=["Control_1",204.16,56.80,17.38,17.38]
+Control_2=["Control_2",204.16,73.94,17.38,17.38]
+Control_3=["Control_3",204.16,91.09,17.38,17.38]
+Control_4=["Control_4",204.16,108.23,17.38,17.38]
+Control_5=["Control_5",204.16,125.38,17.38,17.38]
+Index_1=["Index_1",168.60,52.66,17.38,17.38]
+Index_2=["Index_2",168.60,69.50,17.38,17.38]
+Little_1=["Little_1",115.26,56.80,17.38,17.38]
+Little_2=["Little_2",115.26,73.94,17.38,17.38]
+Little_3=["Little_3",115.26,91.09,17.38,17.38]
+Little_4=["Little_4",115.26,108.23,17.38,17.38]
+Little_5=["Little_5",115.26,125.38,17.38,17.38]
+Middle_1=["Middle_1",150.82,52.66,17.38,17.38]
+Middle_2=["Middle_2",150.82,69.50,17.38,17.38]
+Ring_1=["Ring_1",133.04,56.80,17.38,17.38]
+Ring_2=["Ring_2",133.04,73.94,17.38,17.38]
+Ring_3=["Ring_3",133.04,91.09,17.38,17.38]
+Ring_4=["Ring_4",133.04,108.23,17.38,17.38]
+Ring_5=["Ring_5",133.04,125.38,17.38,17.38]
+Thumb_1=["Thumb_1",186.38,56.80,17.38,17.38]
+Thumb_2=["Thumb_2",186.38,73.94,17.38,17.38]
+Thumb_3=["Thumb_3",186.38,91.09,17.38,17.38]
+Thumb_4=["Thumb_4",186.38,108.23,17.38,17.38]
+Thumb_5=["Thumb_5",186.38,125.38,17.38,17.38]
+
+# right handed
+#keyHoles = [Little_3,Ring_2, Middle_1, Index_2, Thumb_5,Control_5]
+#displayHole = Brd2
+# left handed
+keyHoles = [Little_5,Ring_5, Middle_2, Index_1, Thumb_1,Control_2]
+displayHole = Brd1
+
+
+panelPos =  Base.Vector(origin[0]-boxMargin,origin[1]-boxMargin,0)
+panel = Part.makeBox(width+(boxMargin+2),depth+(boxMargin+2),keyPushHeight,panelPos)
+
+basePos =  Base.Vector(origin[0]-boxMargin,origin[1]-boxMargin,baseYOffset)
+base = Part.makeBox(width+(boxMargin+2),depth+(boxMargin+2),baseHeight,basePos)
+baseCutPos =  Base.Vector(origin[0]-boxMargin+baseSidethickness,origin[1]-boxMargin+baseSidethickness,baseYOffset+baseSidethickness)
+baseCut = Part.makeBox(width+(boxMargin+2)-(baseSidethickness*2),depth+(boxMargin+2)-(baseSidethickness*2),baseHeight,baseCutPos)
+base = base.cut(baseCut)
+
+rimCutWidth = width+(boxMargin+2) - (2* baseRimThickness)
+rimCutDepth = depth+(boxMargin+2) - (2* baseRimThickness)
+rimCutPos = Base.Vector(origin[0]-boxMargin+(boxSideThickness- baseRimThickness), origin[1]-boxMargin+(boxSideThickness- baseRimThickness), baseYOffset+baseHeight-baseRimHeight)
+rimCut = Part.makeBox(width+(boxMargin+2)- (2* baseRimThickness),depth+(boxMargin+2)- (2* baseRimThickness),baseHeight,rimCutPos)
+base = base.cut(rimCut)
+
+def cutHole(panel, item,width,depth, startHeight, height):
+   holePos = Base.Vector(item[1]-width/2,item[2]-depth/2.0,startHeight)
+   hole = Part.makeBox(width,depth,height,holePos)   
+   panel = panel.cut(hole)
+   return panel
+
+def cutHoleOLED(panel, item,width,depth, startHeight, height):
+   holePos = Base.Vector(item[1]-width/2,item[2]-depth/2.0,startHeight)
+   hole = Part.makeBox(width,depth,height,holePos)   
+   panel = panel.cut(hole)
+   return panel
+
+
+def cutHolePico(panel, item,width,depth, startHeight, height):
+   holePos = Base.Vector(item[1]-width/2,item[2]-depth/2.0,startHeight-picoLowerDepth)
+   hole = Part.makeBox(width,depth+20,height+picoLowerDepth,holePos)   
+   panel = panel.cut(hole)
+   return panel
+
+for hole in mountingHoles:
+   holePos = Base.Vector(hole[0],hole[1],0)
+   holeCylinder = Part.makeCylinder(holeRadius,keyPushHeight,holePos)
+   panel = panel.cut(holeCylinder)
+   holePos = Base.Vector(hole[0],hole[1],baseYOffset)
+   holeCylinder = Part.makeCylinder(baseHoleRadius,baseSidethickness,holePos)
+   base = base.cut(holeCylinder)
+   holeCylinder = Part.makeCylinder(baseHoleHeadRadius,baseHoleHeadDepth,holePos)
+   base = base.cut(holeCylinder)
+
+for keyHole in keyHoles:
+   panel = cutHole(panel, keyHole, keyswitchHoleSize,keyswitchHoleSize,0,keyPushHeight);
+
+insetPanelPos =  Base.Vector(origin[0]-boxMargin,origin[1]-boxMargin,keyPushHeight)
+insetPanel = Part.makeBox(width+(boxMargin+2),depth+(boxMargin+2),keySocketHoleHeight,insetPanelPos)
+for keyHole in keyHoles:
+   insetPanel = cutHole(insetPanel, keyHole, keyswitchHoleSize+keyInsetHoleMargin,keyswitchHoleSize+keyInsetHoleMargin,keyPushHeight,keySocketHoleHeight);
+panel = panel.fuse(insetPanel)
+
+panel = cutHoleOLED(panel, displayHole, displayHole[3]+displayHoleMargin,displayHole[4]+displayHoleMargin,0,displayInsetHeight)
+panel = cutHoleOLED(panel, displayHole,displayHoleWidth,displayHoleDepth,displayInsetHeight,displayInsetHeight)
+
+outerPos =  Base.Vector(origin[0]-(boxSideThickness+boxMargin),origin[1]-(boxSideThickness+boxMargin),-caseHeight+keyPushHeight+keySocketHoleHeight)
+outerExtraSize = (boxSideThickness+boxMargin)*2
+outerBox = Part.makeBox(width+outerExtraSize,depth+outerExtraSize,caseHeight,outerPos)
+innerPos =  Base.Vector(origin[0]-boxMargin,origin[1]-boxMargin,-caseHeight)
+innerBox = Part.makeBox(width+(boxMargin*2),depth+(boxMargin*2),caseHeight,innerPos)
+outerBox = outerBox.cut(innerBox)
+innerPos =  Base.Vector(origin[0],origin[1],0)
+innerBox = Part.makeBox(width,depth,keyPushHeight+keySocketHoleHeight,innerPos)
+outerBox = outerBox.cut(innerBox)
+completeBox = outerBox.fuse(panel)
+completeBox = cutHolePico(completeBox, pico, pico[3]+picoMargin,pico[4]+picoMargin,0,picoInsetHeight)
+panel = cutHolePico(panel, pico, pico[3]+picoMargin,pico[4]+picoMargin,0,picoInsetHeight)
+base = cutHolePico(base, pico, pico[3]+picoMargin,pico[4]+picoMargin,baseYOffset+20,picoInsetHeight)
+
+Part.show(panel)
+Part.show(base)
+
+
+Gui.SendMsgToActiveView("ViewFit")
+Gui.activeDocument().activeView().viewAxometric()
+
